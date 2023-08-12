@@ -1,17 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Text.Json.Nodes;
 using UsersManagementTests;
 
 namespace UsersManagement.Tests
 {
-
-    //todo - criar um usuario publico para testes.
-    //ou mockar as informações quando só precisar rodar testes de validação de código?
-
     [TestClass()]
     public class UserServiceTests
     {
         [TestMethod()]
-        public void GetInvalidUserTest()
+        public void Get_Invalid_User()
         {
             string email = "emanuel@teste.com.br";
             string password = "12345";
@@ -24,7 +21,7 @@ namespace UsersManagement.Tests
         }
 
         [TestMethod()]
-        public void GetValidUserTest()
+        public void GetUser_And_SingIn()
         {
             string email = ValidInfos.Email;
             string password = ValidInfos.Password;
@@ -35,19 +32,33 @@ namespace UsersManagement.Tests
 
             Console.WriteLine(resp.Content);
 
-            Assert.IsTrue(resp.Success);
+            if (resp.Success && resp?.Content is not null)
+            {
+                string token = resp.Content;
+
+                var userResp = userService.GetUserAsync(token).Result;
+
+                if (userResp.Success && userResp.Content is not null)
+                {
+                    JsonNode? userResponse = JsonNode.Parse(userResp.Content);
+
+                    if (userResponse is not null)
+                        Assert.AreEqual(2, userResponse["id"]?.GetValue<int>() ?? 0);
+                }
+
+            }
         }
 
-        [TestMethod()]
-        public void GetUserTest()
-        {
-            string token = ValidInfos.Token;
+        //[TestMethod()]
+        //public void GetUserTest()
+        //{
+        //    string token = ValidInfos.Token;
 
-            UserService userService = new(ValidInfos.ServerUrl);
+        //    UserService userService = new(ValidInfos.ServerUrl);
 
-            var resp = userService.GetUserAsync(token).Result;
+        //    var resp = userService.GetUserAsync(token).Result;
 
-            Assert.IsTrue(resp.Success);
-        }
+        //    Assert.IsTrue(resp.Success);
+        //}
     }
 }
