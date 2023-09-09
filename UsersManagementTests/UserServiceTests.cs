@@ -21,6 +21,19 @@ namespace UsersManagement.Tests
         }
 
         [TestMethod()]
+        public void Get_Invalid_Email()
+        {
+            string email = "emanuel";
+            string password = "12345";
+
+            UserService userService = new(ValidInfos.ServerUrl);
+
+            Model.ApiResponse resp = userService.GetUserTokenAsync(email, password).Result;
+
+            Assert.IsFalse(resp.Success);
+        }
+
+        [TestMethod()]
         public void GetUser_And_SingIn()
         {
             string email = ValidInfos.Email;
@@ -43,7 +56,7 @@ namespace UsersManagement.Tests
                     JsonNode? userResponse = JsonNode.Parse(userResp.Content);
 
                     if (userResponse is not null)
-                        Assert.AreEqual(2, userResponse["id"]?.GetValue<int>() ?? 0);
+                        Assert.AreEqual(6, userResponse["id"]?.GetValue<int>() ?? 0);
                 }
 
             }

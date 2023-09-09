@@ -1,11 +1,12 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using UsersManagement.Model;
 
 namespace UsersManagement
-{    
+{
 
-    public class UserService : IUserService
+    public partial class UserService : IUserService
     {
         private readonly string ServerUrl;// "";
 
@@ -35,10 +36,15 @@ namespace UsersManagement
             try
             {
                 email = email.ToLower();
+                Regex regexEmail = RegexEmail();
 
-                (bool success, string? message) = await GetUserSessionAsync(email, password);
+                if (regexEmail.IsMatch(email))
+                {
+                    (bool success, string? message) = await GetUserSessionAsync(email, password);
 
-                return new ApiResponse() { Success = success, Content = message };
+                    return new ApiResponse() { Success = success, Content = message };
+                }
+                else return new ApiResponse() { Success = false, Content = "Invalid Email" };
             }
             catch (Exception ex)
             {
@@ -66,9 +72,13 @@ namespace UsersManagement
 
                     if (resp.Success && jResp is not null && jResp?["token"]?.GetValue<string>() is not null)
                         return (true, jResp?["token"]?.GetValue<string>());
-
-                    else if (!resp.Success && jResp is not null && jResp?["error"]?.GetValue<string>() is not null)
-                        return (false, jResp?["error"]?.GetValue<string>());
+                    else if (!resp.Success && jResp is not null)
+                    {
+                        if (jResp?["errors"]?.GetValue<string>() is not null)
+                            return (false, jResp?["errors"]?.GetValue<string>());
+                        else if (jResp?["error"]?.GetValue<string>() is not null)
+                            return (false, jResp?["error"]?.GetValue<string>());
+                    }
 
                     else throw new Exception("Response nao mapeado: " + resp.Content);
                 }
@@ -81,5 +91,7 @@ namespace UsersManagement
             }
         }
 
+        [GeneratedRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$", RegexOptions.IgnoreCase, "pt-BR")]
+        private static partial Regex RegexEmail();
     }
 }
