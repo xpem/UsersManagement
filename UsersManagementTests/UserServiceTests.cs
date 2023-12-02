@@ -57,9 +57,11 @@ namespace UsersManagement.Tests
 
                     if (userResponse is not null)
                         Assert.AreEqual(6, userResponse["id"]?.GetValue<int>() ?? 0);
+                    return;
                 }
 
             }
+            Assert.Fail();
         }
 
         //[TestMethod()]
