@@ -6,18 +6,12 @@ using UsersManagement.Model;
 namespace UsersManagement
 {
 
-    public partial class UserService : IUserService
+    public partial class UserService(string serverUrl) : IUserService
     {
-        private readonly string ServerUrl;// "";
-
-        public UserService(string serverUrl)
-        {
-            ServerUrl = serverUrl;
-        }
 
         public async Task<ApiResponse> GetUserAsync(string token)
         {
-            return await HttpClientFunctions.GetAsync(ServerUrl + "/user", token);
+            return await HttpClientFunctions.GetAsync(serverUrl + "/user", token);
         }
 
         public async Task<ApiResponse> AddUserAsync(string name, string email, string password)
@@ -26,9 +20,9 @@ namespace UsersManagement
             {
                 string json = JsonSerializer.Serialize(new { name, email, password });
 
-                return await HttpClientFunctions.PostAsync(ServerUrl + "/user", json);
+                return await HttpClientFunctions.PostAsync(serverUrl + "/user", json);
             }
-            catch (Exception ex) { throw; }
+            catch (Exception) { throw; }
         }
 
         public async Task<ApiResponse> GetUserTokenAsync(string email, string password)
@@ -46,7 +40,7 @@ namespace UsersManagement
                 }
                 else return new ApiResponse() { Success = false, Content = "Invalid Email" };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -55,7 +49,7 @@ namespace UsersManagement
         public async Task<ApiResponse> RecoverPasswordAsync(string email)
         {
             string json = JsonSerializer.Serialize(new { email });
-            return await HttpClientFunctions.PostAsync(ServerUrl + "/user/recoverpassword", json);
+            return await HttpClientFunctions.PostAsync(serverUrl + "/user/recoverpassword", json);
         }
 
         private async Task<(bool, string?)> GetUserSessionAsync(string email, string password)
@@ -64,7 +58,7 @@ namespace UsersManagement
             {
                 string json = JsonSerializer.Serialize(new { email, password });
 
-                var resp = await HttpClientFunctions.PostAsync(ServerUrl + "/user/session", json);
+                var resp = await HttpClientFunctions.PostAsync(serverUrl + "/user/session", json);
 
                 if (resp is not null && resp.Content is not null)
                 {
@@ -85,9 +79,9 @@ namespace UsersManagement
 
                 return (false, null);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
 
