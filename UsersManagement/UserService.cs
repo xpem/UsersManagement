@@ -62,22 +62,29 @@ namespace UsersManagement
 
                 if (resp is not null && resp.Content is not null)
                 {
-                    JsonNode? jResp = JsonNode.Parse(resp.Content);
-
-                    if (resp.Success && jResp is not null && jResp?["token"]?.GetValue<string>() is not null)
-                        return (true, jResp?["token"]?.GetValue<string>());
-                    else if (!resp.Success && jResp is not null)
+                    if (resp.Success)
                     {
-                        if (jResp?["errors"]?.GetValue<string>() is not null)
-                            return (false, jResp?["errors"]?.GetValue<string>());
-                        else if (jResp?["error"]?.GetValue<string>() is not null)
-                            return (false, jResp?["error"]?.GetValue<string>());
+                        JsonNode? jResp = JsonNode.Parse(resp.Content);
+
+                        if (resp.Success && jResp is not null && jResp?["token"]?.GetValue<string>() is not null)
+                            return (true, jResp?["token"]?.GetValue<string>());
+                        else if (!resp.Success && jResp is not null)
+                        {
+                            if (jResp?["errors"]?.GetValue<string>() is not null)
+                                return (false, jResp?["errors"]?.GetValue<string>());
+                            else if (jResp?["error"]?.GetValue<string>() is not null)
+                                return (false, jResp?["error"]?.GetValue<string>());
+                        }
+                    }
+                    else if (resp.Content is not null)
+                    {
+                        return (false, resp.Content);
                     }
 
                     else throw new Exception("Response nao mapeado: " + resp.Content);
                 }
 
-                return (false, null);
+                throw new Exception("Response ou content nulo: " + resp);
             }
             catch (Exception)
             {
