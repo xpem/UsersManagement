@@ -33,6 +33,27 @@ namespace UsersManagement.Tests
             Assert.IsFalse(resp.Success);
         }
 
+
+        [TestMethod()]
+        public void Get_InvalidPassword()
+        {
+            string email = ValidInfos.Email;
+            string password = "Invalid";
+
+            UserService userService = new(ValidInfos.ServerUrl);
+
+            Model.ApiResponse resp = userService.GetUserTokenAsync(email, password).Result;
+
+            Console.WriteLine(resp.Content);
+
+            if (!resp.Success && resp?.Content is not null)
+            {
+               Assert.AreEqual("User/Password incorrect", resp.Content);
+                return;
+            }
+            Assert.Fail();
+        }
+
         [TestMethod()]
         public void GetUser_And_SingIn()
         {

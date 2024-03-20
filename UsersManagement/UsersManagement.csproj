@@ -12,12 +12,11 @@
 	  <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
 	<ItemGroup>
-		<None Include="License\License.txt" Pack="True" PackagePath="\" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Update="License\ReadMe.md">
+	  <None Update="License.txt" Pack="True" PackagePath="\" />
+	  <None Update="ReadMe.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
 </Project>
